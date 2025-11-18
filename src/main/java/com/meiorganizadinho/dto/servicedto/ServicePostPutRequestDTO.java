@@ -19,4 +19,5 @@ public record ServicePostPutRequestDTO(
         @JsonProperty(required = true)
         int duration
 ) {
+    //teste commit
 }
