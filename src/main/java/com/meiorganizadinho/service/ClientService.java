@@ -24,7 +24,7 @@ public class ClientService {
 
         boolean isAlreadyClientExists = clientRepository.existsByName(clientName);
         if (isAlreadyClientExists) {
-            throw new BusinessException("Já existe um cliente com o nome: " + clientName);
+            throw new BusinessException("Client already exists: " + clientName);
         }
 
         Client client = new Client(clientPostPutRequestDTO.name());
@@ -54,7 +54,7 @@ public class ClientService {
         return clientResponseDTO;
     }
 
-    public ClientResponseDTO update(int id, ClientPostPutRequestDTO clientRequest) {
+    public ClientResponseDTO update(Long id, ClientPostPutRequestDTO clientRequest) {
         Client client = clientRepository.findById(id)
                 .orElseThrow(() -> new ClientNotFoundException((("Cliente não encontrado"))));
 
@@ -65,7 +65,7 @@ public class ClientService {
         return new ClientResponseDTO(client.getId(), client.getName());
     }
 
-    public void delete(int id) {
+    public void delete(Long id) {
         Client client = clientRepository.findById(id)
                 .orElseThrow(() -> new ClientNotFoundException((("Cliente não encontrado"))));
 

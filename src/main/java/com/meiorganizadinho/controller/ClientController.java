@@ -33,12 +33,12 @@ public class ClientController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ClientResponseDTO> put(@PathVariable int id, @Valid @RequestBody ClientPostPutRequestDTO client) {
+    public ResponseEntity<ClientResponseDTO> put(@PathVariable Long id, @Valid @RequestBody ClientPostPutRequestDTO client) {
         return ResponseEntity.status(HttpStatus.OK).body(clientService.update(id, client));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable int id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         clientService.delete(id);
 
         return ResponseEntity.noContent().build();
