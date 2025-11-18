@@ -44,17 +44,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorMessage> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
         String detailsErrorMessage = "Invalid request body";
 
-        if (ex.getMessage() != null) {
-            String message = ex.getMessage().toLowerCase();
-
-            if (message.contains("unexpected end-of-input") ||
-                    message.contains("expected value") || message.contains("expected a value")) {
-                detailsErrorMessage = "Name is required";
-            } else if (message.contains("cannot deserialize value")) {
-                detailsErrorMessage = "Invalid value format";
-            }
-        }
-
         ErrorMessage errorMessage = new ErrorMessage(
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
                 detailsErrorMessage

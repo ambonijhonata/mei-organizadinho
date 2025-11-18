@@ -2,6 +2,9 @@ package com.meiorganizadinho.entity;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 public class Client {
 
@@ -11,6 +14,9 @@ public class Client {
 
     @Column(unique = true, nullable = false)
     private String name;
+
+    @OneToMany(mappedBy = "client")
+    private List<Appointment> appointments = new ArrayList<>();
 
     public Client(String name) {
         this.name = name;
@@ -31,5 +37,13 @@ public class Client {
 
     public String getName() {
         return name;
+    }
+
+    public void setAppointments(List<Appointment> appointments) {
+        this.appointments = appointments;
+    }
+
+    public List<Appointment> getAppointments() {
+        return appointments;
     }
 }
