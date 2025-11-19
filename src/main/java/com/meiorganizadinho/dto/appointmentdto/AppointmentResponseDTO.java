@@ -9,6 +9,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 public record AppointmentResponseDTO(
+        Long id,
         ClientResponseDTO client,
         List<ServiceResponseDTO> services,
         LocalDate date,

@@ -4,10 +4,13 @@ import com.meiorganizadinho.dto.appointmentdto.AppointmentPostPutRequestDTO;
 import com.meiorganizadinho.dto.appointmentdto.AppointmentResponseDTO;
 import com.meiorganizadinho.entity.Appointment;
 import com.meiorganizadinho.service.AppointmentService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @RestController
@@ -25,7 +28,24 @@ public class AppointmentController {
     }
 
     @GetMapping
-    public ResponseEntity<List<AppointmentResponseDTO>> get() {
+    public ResponseEntity<List<AppointmentResponseDTO>> get(@RequestParam(required = false) LocalDate date, @RequestParam(required = false) LocalTime startTime) {
+        if (date != null && startTime != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(appointmentService.getByDateAndStartTimeGreaterThan(date, startTime));
+        } else if (date != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(appointmentService.getByDate(date));
+        }
         return ResponseEntity.status(HttpStatus.OK).body(appointmentService.get());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<AppointmentResponseDTO> put(@PathVariable Long id, @Valid @RequestBody AppointmentPostPutRequestDTO appointment) {
+        return ResponseEntity.status(HttpStatus.OK).body(appointmentService.update(id, appointment));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        appointmentService.delete(id);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
