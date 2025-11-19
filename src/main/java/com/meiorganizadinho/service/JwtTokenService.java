@@ -5,6 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.meiorganizadinho.entity.UserDetailsImpl;
+import com.meiorganizadinho.exception.JwtTokenException;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -33,15 +34,14 @@ public class JwtTokenService {
 
     public String getSubjectFromToken(String token) {
         try {
-            // Define o algoritmo HMAC SHA256 para verificar a assinatura do token passando a chave secreta definida
             Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY);
             return JWT.require(algorithm)
-                    .withIssuer(ISSUER) // Define o emissor do token
+                    .withIssuer(ISSUER)
                     .build()
-                    .verify(token) // Verifica a validade do token
-                    .getSubject(); // Obtém o assunto (neste caso, o nome de usuário) do token
+                    .verify(token)
+                    .getSubject();
         } catch (JWTVerificationException exception){
-            throw new JWTVerificationException("Token inválido ou expirado.");
+            throw new JwtTokenException("Token inválido ou expirado.");
         }
     }
 
