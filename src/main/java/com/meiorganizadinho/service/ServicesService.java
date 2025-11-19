@@ -70,6 +70,10 @@ public class ServicesService {
         Services services = serviceRepository.findById(id).
                 orElseThrow(() -> new NotFoundException("Servico nao encontrado"));
 
+        int qtdAppointments = services.getAppointments().size();
+        if(qtdAppointments > 0) {
+            throw new BusinessException("Serviço possui vínculos com " + qtdAppointments + " agendamento(s)");
+        }
         serviceRepository.delete(services);
     }
 }

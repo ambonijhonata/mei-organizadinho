@@ -2,6 +2,9 @@ package com.meiorganizadinho.entity;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "service")
 public class Services {
@@ -17,6 +20,9 @@ public class Services {
 
     @Column(nullable = false)
     private int duration;
+
+    @ManyToMany(mappedBy = "services")
+    private List<Appointment> appointments = new ArrayList<>();
 
     public Services(){}
 
@@ -56,5 +62,9 @@ public class Services {
 
     public void setDuration(int duration) {
         this.duration = duration;
+    }
+
+    public List<Appointment> getAppointments() {
+        return appointments;
     }
 }

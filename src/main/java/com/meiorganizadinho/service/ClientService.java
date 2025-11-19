@@ -69,6 +69,10 @@ public class ClientService {
         Client client = clientRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException((("Cliente não encontrado"))));
 
+        int qtdAppointments = client.getAppointments().size();
+        if(qtdAppointments > 0) {
+            throw new BusinessException("Cliente possui vínculos com " + qtdAppointments + " appointment(s)");
+        }
         clientRepository.delete(client);
     }
 }
