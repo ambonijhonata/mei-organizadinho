@@ -4,6 +4,7 @@ import com.meiorganizadinho.dto.servicedto.ServicePostPutRequestDTO;
 import com.meiorganizadinho.dto.servicedto.ServiceResponseDTO;
 import com.meiorganizadinho.entity.Services;
 import com.meiorganizadinho.exception.BusinessException;
+import com.meiorganizadinho.exception.NotFoundException;
 import com.meiorganizadinho.repository.ServiceRepository;
 import org.springframework.stereotype.Service;
 
@@ -51,5 +52,24 @@ public class ServicesService {
         }
 
         return serviceResponseDTO;
+    }
+
+    public ServiceResponseDTO update(Long id, ServicePostPutRequestDTO servicePostPutRequestDTO) {
+        Services services = serviceRepository.findById(id).
+                orElseThrow(() -> new NotFoundException("Servico nao encontrado"));
+
+        services.setName(servicePostPutRequestDTO.name());
+        services.setValue(servicePostPutRequestDTO.value());
+        services.setDuration(servicePostPutRequestDTO.duration());
+
+        services = serviceRepository.save(services);
+        return new ServiceResponseDTO(services.getId(), services.getName(), services.getValue(), services.getDuration());
+    }
+
+    public void delete(Long id) {
+        Services services = serviceRepository.findById(id).
+                orElseThrow(() -> new NotFoundException("Servico nao encontrado"));
+
+        serviceRepository.delete(services);
     }
 }

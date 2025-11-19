@@ -32,4 +32,16 @@ public class ServicesController {
 
         return ResponseEntity.status(HttpStatus.OK).body(servicesService.getAll());
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ServiceResponseDTO> put(@PathVariable Long id, @Valid @RequestBody ServicePostPutRequestDTO servicePostPutRequestDTO) {
+        return ResponseEntity.status(HttpStatus.OK).body(servicesService.update(id, servicePostPutRequestDTO));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ServiceResponseDTO> delete(@PathVariable Long id) {
+        servicesService.delete(id);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }

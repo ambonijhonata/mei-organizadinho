@@ -4,7 +4,7 @@ import com.meiorganizadinho.dto.clientdto.ClientPostPutRequestDTO;
 import com.meiorganizadinho.dto.clientdto.ClientResponseDTO;
 import com.meiorganizadinho.entity.Client;
 import com.meiorganizadinho.exception.BusinessException;
-import com.meiorganizadinho.exception.ClientNotFoundException;
+import com.meiorganizadinho.exception.NotFoundException;
 import com.meiorganizadinho.repository.ClientRepository;
 import org.springframework.stereotype.Service;
 
@@ -56,7 +56,7 @@ public class ClientService {
 
     public ClientResponseDTO update(Long id, ClientPostPutRequestDTO clientRequest) {
         Client client = clientRepository.findById(id)
-                .orElseThrow(() -> new ClientNotFoundException((("Cliente não encontrado"))));
+                .orElseThrow(() -> new NotFoundException((("Cliente não encontrado"))));
 
         client.setName(clientRequest.name());
 
@@ -67,7 +67,7 @@ public class ClientService {
 
     public void delete(Long id) {
         Client client = clientRepository.findById(id)
-                .orElseThrow(() -> new ClientNotFoundException((("Cliente não encontrado"))));
+                .orElseThrow(() -> new NotFoundException((("Cliente não encontrado"))));
 
         clientRepository.delete(client);
     }

@@ -52,8 +52,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(ClientNotFoundException.class)
-    public ResponseEntity<ErrorMessage> handleClientNotFoundException(ClientNotFoundException ex) {
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ErrorMessage> handleNotFoundException(NotFoundException ex) {
         ErrorMessage errorMessage = new ErrorMessage(
                 HttpStatus.NOT_FOUND.getReasonPhrase(),
                 ex.getMessage()
