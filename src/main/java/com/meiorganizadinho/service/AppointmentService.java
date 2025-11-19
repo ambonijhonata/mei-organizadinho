@@ -137,7 +137,7 @@ public class AppointmentService {
                 .orElseThrow(() -> new NotFoundException("Appointment not found"));
 
         List<Appointment> conflicts = appointmentRepository.findConflictingAppointments(appointmentPostPutRequestDTO.date(), appointmentPostPutRequestDTO.startTime(), appointmentPostPutRequestDTO.endTime());
-        if(!conflicts.isEmpty()) {
+        if(!conflicts.isEmpty() && conflicts.get(0).getId() != appointment.getId()) {
             throw new BusinessException("Conflicting appointments in date " + appointmentPostPutRequestDTO.date() + " between " + appointmentPostPutRequestDTO.startTime() + " and " + appointmentPostPutRequestDTO.endTime() + " are found");
         }
         Client client = clientRepository.findById(appointmentPostPutRequestDTO.clientId())

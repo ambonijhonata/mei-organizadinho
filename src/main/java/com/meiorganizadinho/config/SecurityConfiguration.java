@@ -35,6 +35,8 @@ public class SecurityConfiguration {
             "/api/v1/services",
             "/api/v1/services/{id}",
             "/api/v1/appointments",
+            "/api/v1/appointments/{id}",
+            "/api/v1/reports/**"
 
     };
 
