@@ -2,8 +2,6 @@ package com.meiorganizadinho.entity;
 
 import jakarta.persistence.*;
 
-import java.util.List;
-
 @Entity(name = "User")
 @Table(name = "users")
 public class User {
@@ -15,21 +13,14 @@ public class User {
     @Column(unique = true)
     private String email;
 
-    private String password;
-
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
-    @JoinTable(name="users_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name="role_id"))
-    private List<Role> roles;
+    private String password;    
 
     public User() {}
 
-    public User(Long id, String email, String password, List<Role> roles) {
+    public User(Long id, String email, String password) {
         this.id = id;
         this.email = email;
-        this.password = password;
-        this.roles = roles;
+        this.password = password;        
     }
 
     public Long getId() {
@@ -44,10 +35,6 @@ public class User {
         return password;
     }
 
-    public List<Role> getRoles() {
-        return roles;
-    }
-
     public static UserBuilder builder() {
         return new UserBuilder();
     }
@@ -56,7 +43,6 @@ public class User {
         private Long id;
         private String email;
         private String password;
-        private List<Role> roles;
 
         UserBuilder() {}
 
@@ -75,21 +61,15 @@ public class User {
             return this;
         }
 
-        public UserBuilder roles(List<Role> roles) {
-            this.roles = roles;
-            return this;
-        }
-
         public User build() {
-            return new User(id, email, password, roles);
+            return new User(this.id, this.email, this.password);
         }
-
+        
         @Override
         public String toString() {
             return "User.UserBuilder(id=" + this.id +
                     ", email=" + this.email +
-                    ", password=" + this.password +
-                    ", roles=" + this.roles + ")";
+                    ", password=" + this.password + ")";
         }
     }
 }

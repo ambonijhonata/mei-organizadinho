@@ -1,6 +1,5 @@
 package com.meiorganizadinho.exception;
 
-import com.auth0.jwt.exceptions.JWTVerificationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -71,5 +70,14 @@ public class GlobalExceptionHandler {
         );
 
         return new ResponseEntity<>(errorMessage, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ErrorMessage> handleConflictException(ConflictException ex) {
+        ErrorMessage errorMessage = new ErrorMessage(
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                ex.getMessage()
+        );
+        return new ResponseEntity<>(errorMessage, HttpStatus.CONFLICT);
     }
 }
