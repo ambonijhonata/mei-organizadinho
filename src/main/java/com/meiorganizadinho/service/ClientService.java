@@ -4,6 +4,7 @@ import com.meiorganizadinho.dto.clientdto.ClientPostPutRequestDTO;
 import com.meiorganizadinho.dto.clientdto.ClientResponseDTO;
 import com.meiorganizadinho.entity.Client;
 import com.meiorganizadinho.exception.BusinessException;
+import com.meiorganizadinho.exception.ConflictException;
 import com.meiorganizadinho.exception.NotFoundException;
 import com.meiorganizadinho.repository.ClientRepository;
 import org.springframework.stereotype.Service;
@@ -22,9 +23,9 @@ public class ClientService {
     public ClientResponseDTO create(ClientPostPutRequestDTO clientPostPutRequestDTO) {
         String clientName = clientPostPutRequestDTO.name();
 
-        boolean isAlreadyClientExists = clientRepository.existsByName(clientName);
+        boolean isAlreadyClientExists = clientRepository.existsByNameIgnoreCase(clientName);
         if (isAlreadyClientExists) {
-            throw new BusinessException("Client already exists: " + clientName);
+            throw new ConflictException("Client with name " + clientPostPutRequestDTO.name() + " already exists");
         }
 
         Client client = new Client(clientPostPutRequestDTO.name());
@@ -56,7 +57,11 @@ public class ClientService {
 
     public ClientResponseDTO update(Long id, ClientPostPutRequestDTO clientRequest) {
         Client client = clientRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException((("Cliente não encontrado"))));
+                .orElseThrow(() -> new NotFoundException((("Client not found"))));
+
+        if(clientRequest.name().equalsIgnoreCase(client.getName()) || clientRepository.existsByNameIgnoreCase(clientRequest.name())) {
+            throw new ConflictException("Client with name " + clientRequest.name() + " already exists");
+        }
 
         client.setName(clientRequest.name());
 
@@ -67,11 +72,11 @@ public class ClientService {
 
     public void delete(Long id) {
         Client client = clientRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException((("Cliente não encontrado"))));
+                .orElseThrow(() -> new NotFoundException((("Client not found"))));
 
         int qtdAppointments = client.getAppointments().size();
         if(qtdAppointments > 0) {
-            throw new BusinessException("Cliente possui vínculos com " + qtdAppointments + " appointment(s)");
+            throw new BusinessException("Cliente has link with " + qtdAppointments + " appointment(s)");
         }
         clientRepository.delete(client);
     }

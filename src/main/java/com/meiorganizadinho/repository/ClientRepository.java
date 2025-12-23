@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public interface ClientRepository extends JpaRepository<Client, Long> {
-    boolean existsByName(String name);
+    boolean existsByNameIgnoreCase(String name);
     List<Client> findAllByOrderByNameAsc();
     List<Client> findByNameContainingIgnoreCaseOrderByNameAsc(String name);
 }

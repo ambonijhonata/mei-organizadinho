@@ -4,6 +4,7 @@ import com.meiorganizadinho.dto.servicedto.ServicePostPutRequestDTO;
 import com.meiorganizadinho.dto.servicedto.ServiceResponseDTO;
 import com.meiorganizadinho.entity.Services;
 import com.meiorganizadinho.exception.BusinessException;
+import com.meiorganizadinho.exception.ConflictException;
 import com.meiorganizadinho.exception.NotFoundException;
 import com.meiorganizadinho.repository.ServiceRepository;
 import org.springframework.stereotype.Service;
@@ -22,9 +23,9 @@ public class ServicesService {
     public ServiceResponseDTO create(ServicePostPutRequestDTO servicePostPutRequestDTO) {
         String serviceName = servicePostPutRequestDTO.name();
 
-        boolean isAlreadyServiceExists = serviceRepository.existsByName(serviceName);
+        boolean isAlreadyServiceExists = serviceRepository.existsByNameIgnoreCase(serviceName);
         if(isAlreadyServiceExists) {
-            throw new BusinessException("Service already exists: " + serviceName);
+            throw new ConflictException("Service with name " + servicePostPutRequestDTO.name() + " already exists");
         }
 
         Services services = new Services(servicePostPutRequestDTO.name(), servicePostPutRequestDTO.value(), servicePostPutRequestDTO.duration());
@@ -56,7 +57,12 @@ public class ServicesService {
 
     public ServiceResponseDTO update(Long id, ServicePostPutRequestDTO servicePostPutRequestDTO) {
         Services services = serviceRepository.findById(id).
-                orElseThrow(() -> new NotFoundException("Servico nao encontrado"));
+                orElseThrow(() -> new NotFoundException("Service not found"));
+
+        if(servicePostPutRequestDTO.name().equalsIgnoreCase(services.getName())
+        || serviceRepository.existsByNameIgnoreCase(services.getName())) {
+            throw new ConflictException("Service with name " + servicePostPutRequestDTO.name() + " already exists");
+        }
 
         services.setName(servicePostPutRequestDTO.name());
         services.setValue(servicePostPutRequestDTO.value());
@@ -68,7 +74,7 @@ public class ServicesService {
 
     public void delete(Long id) {
         Services services = serviceRepository.findById(id).
-                orElseThrow(() -> new NotFoundException("Servico nao encontrado"));
+                orElseThrow(() -> new NotFoundException("Service not found"));
 
         int qtdAppointments = services.getAppointments().size();
         if(qtdAppointments > 0) {
