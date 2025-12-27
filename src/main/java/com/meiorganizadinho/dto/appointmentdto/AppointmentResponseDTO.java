@@ -16,4 +16,20 @@ public record AppointmentResponseDTO(
         LocalTime startTime,
         LocalTime endTime
 ) {
+
+    public static AppointmentResponseDTO fromEntity(Appointment appointment) {
+        ClientResponseDTO clientDTO = ClientResponseDTO.fromEntity(appointment.getClient());
+        List<ServiceResponseDTO> serviceDTOs = appointment.getServices().stream()
+                .map(ServiceResponseDTO::fromEntity)
+                .toList();
+
+        return new AppointmentResponseDTO(
+                appointment.getId(),
+                clientDTO,
+                serviceDTOs,
+                appointment.getDate(),
+                appointment.getStartTime(),
+                appointment.getEndTime()
+        );
+    }
 }

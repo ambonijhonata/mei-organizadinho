@@ -23,51 +23,31 @@ import java.util.List;
 @Service
 public class AppointmentService {
     private final ServiceRepository serviceRepository;
-    private AppointmentRepository appointmentRepository;
-    private ClientRepository clientRepository;
+    private final AppointmentRepository appointmentRepository;
+    private final ClientRepository clientRepository;
 
-    public AppointmentService(AppointmentRepository appointmentRepository, ClientRepository clientRepository, ServiceRepository serviceRepository) {
+    public AppointmentService(AppointmentRepository appointmentRepository,
+                              ClientRepository clientRepository,
+                              ServiceRepository serviceRepository) {
+
         this.appointmentRepository = appointmentRepository;
         this.clientRepository = clientRepository;
         this.serviceRepository = serviceRepository;
     }
 
     public AppointmentResponseDTO create(AppointmentPostPutRequestDTO appointmentPostPutRequestDTO) {
-        List<Appointment> conflicts = appointmentRepository.findConflictingAppointments(appointmentPostPutRequestDTO.date(), appointmentPostPutRequestDTO.startTime(), appointmentPostPutRequestDTO.endTime());
-        if(!conflicts.isEmpty()) {
-            throw new BusinessException("Conflicting appointments in date " + appointmentPostPutRequestDTO.date() + " between " + appointmentPostPutRequestDTO.startTime() + " and " + appointmentPostPutRequestDTO.endTime() + " are found");
-        }
-        Client client = clientRepository.findById(appointmentPostPutRequestDTO.clientId())
-                .orElseThrow(() -> new NotFoundException("Client not found"));
+        validateAppointmentData(appointmentPostPutRequestDTO);
+
+        validateAppointmentConflict(appointmentPostPutRequestDTO, null);
+
+        Client client = findClientById(appointmentPostPutRequestDTO.clientId());
 
         Appointment appointment = new Appointment();
-        appointment.setClient(client);
 
-        for (Long serviceId: appointmentPostPutRequestDTO.servicesId()){
-            Services services = serviceRepository.findById(serviceId)
-                    .orElseThrow(() -> new NotFoundException("Service " + serviceId + " not found"));
-            appointment.getServices().add(services);
-        }
-
-        if(!appointmentPostPutRequestDTO.startTime().isBefore(appointmentPostPutRequestDTO.endTime())){
-            throw new BusinessException("Start time cannot be after end time");
-        }
-
-        appointment.setDate(appointmentPostPutRequestDTO.date());
-        appointment.setStartTime(appointmentPostPutRequestDTO.startTime());
-        appointment.setEndTime(appointmentPostPutRequestDTO.endTime());
+        appointmentFromDto(appointment, appointmentPostPutRequestDTO, client);
         appointment = appointmentRepository.save(appointment);
 
-        return new AppointmentResponseDTO(
-                appointment.getId(),
-                ClientResponseDTO.fromEntity(appointment.getClient()),
-                appointment.getServices().stream()
-                        .map(ServiceResponseDTO::fromEntity)
-                        .toList(),
-                appointment.getDate(),
-                appointment.getStartTime(),
-                appointment.getEndTime()
-        );
+        return AppointmentResponseDTO.fromEntity(appointment);
     }
 
     public List<AppointmentResponseDTO> get(){
@@ -133,49 +113,77 @@ public class AppointmentService {
     }
 
     public AppointmentResponseDTO update(Long id, AppointmentPostPutRequestDTO appointmentPostPutRequestDTO){
-        Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Appointment not found"));
+        validateAppointmentData(appointmentPostPutRequestDTO);
 
-        List<Appointment> conflicts = appointmentRepository.findConflictingAppointments(appointmentPostPutRequestDTO.date(), appointmentPostPutRequestDTO.startTime(), appointmentPostPutRequestDTO.endTime());
-        if(!conflicts.isEmpty() && conflicts.get(0).getId() != appointment.getId()) {
-            throw new BusinessException("Conflicting appointments in date " + appointmentPostPutRequestDTO.date() + " between " + appointmentPostPutRequestDTO.startTime() + " and " + appointmentPostPutRequestDTO.endTime() + " are found");
-        }
-        Client client = clientRepository.findById(appointmentPostPutRequestDTO.clientId())
-                .orElseThrow(() -> new NotFoundException("Client not found"));
+        Appointment appointment = findAppointmentById(id);
 
-        if(!appointmentPostPutRequestDTO.startTime().isBefore(appointmentPostPutRequestDTO.endTime())){
-            throw new BusinessException("Start time cannot be after end time");
-        }
+        validateAppointmentConflict(appointmentPostPutRequestDTO, appointment);
 
-        appointment.setClient(client);
-        appointment.getServices().clear();
-        for (Long serviceId: appointmentPostPutRequestDTO.servicesId()){
-            Services services = serviceRepository.findById(serviceId)
-                    .orElseThrow(() -> new NotFoundException("Service " + serviceId + " not found"));
-            appointment.getServices().add(services);
-        }
+        Client client = findClientById(appointmentPostPutRequestDTO.clientId());
 
-        appointment.setDate(appointmentPostPutRequestDTO.date());
-        appointment.setStartTime(appointmentPostPutRequestDTO.startTime());
-        appointment.setEndTime(appointmentPostPutRequestDTO.endTime());
+        appointmentFromDto(appointment, appointmentPostPutRequestDTO, client);
+
         appointment = appointmentRepository.save(appointment);
 
-        return new AppointmentResponseDTO(
-                appointment.getId(),
-                ClientResponseDTO.fromEntity(appointment.getClient()),
-                appointment.getServices().stream()
-                        .map(ServiceResponseDTO::fromEntity)
-                        .toList(),
-                appointment.getDate(),
-                appointment.getStartTime(),
-                appointment.getEndTime()
-        );
+        return AppointmentResponseDTO.fromEntity((appointment));
     }
 
     public void delete(Long id){
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Appointment not found"));
         appointmentRepository.delete(appointment);
+    }
+
+    private Appointment findAppointmentById(Long id) {
+        return appointmentRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Appointment not found"));
+    }
+
+    private Client findClientById(Long clientId) {
+        return clientRepository.findById(clientId)
+                .orElseThrow(() -> new NotFoundException("Client not found"));
+    }
+
+    private void validateAppointmentData(AppointmentPostPutRequestDTO appointmentPostPutRequestDTO) {
+        if(!appointmentPostPutRequestDTO.startTime().isBefore(appointmentPostPutRequestDTO.endTime())){
+            throw new BusinessException("Start time cannot be after end time");
+        }
+
+        if (appointmentPostPutRequestDTO.servicesId() == null || appointmentPostPutRequestDTO.servicesId().isEmpty()) {
+            throw new BusinessException("At least one service is required");
+        }
+    }
+
+    private void validateAppointmentConflict(AppointmentPostPutRequestDTO appointmentPostPutRequestDTO, Appointment appointment) {
+        List<Appointment> conflicts = appointmentRepository.findConflictingAppointments(appointmentPostPutRequestDTO.date(), appointmentPostPutRequestDTO.startTime(), appointmentPostPutRequestDTO.endTime());
+        if(!conflicts.isEmpty()) {
+            if(appointment != null && conflicts.get(0).getId() != appointment.getId()){
+                throw new BusinessException("Conflicting appointments in date " + appointmentPostPutRequestDTO.date() + " between " + appointmentPostPutRequestDTO.startTime() + " and " + appointmentPostPutRequestDTO.endTime() + " are found");
+            } else if(appointment == null){
+                throw new BusinessException("Conflicting appointments in date " + appointmentPostPutRequestDTO.date() + " between " + appointmentPostPutRequestDTO.startTime() + " and " + appointmentPostPutRequestDTO.endTime() + " are found");
+            }
+        }
+    }
+
+    private List<Services> validateAndFetchServices(List<Long> servicesId) {
+        List<Services> servicesList = new ArrayList<>();
+        for (Long serviceId: servicesId){
+            Services services = serviceRepository.findById(serviceId)
+                    .orElseThrow(() -> new NotFoundException("Service " + serviceId + " not found"));
+            servicesList.add(services);
+        }
+        return servicesList;
+    }
+
+    private void appointmentFromDto(Appointment appointment,
+                                    AppointmentPostPutRequestDTO appointmentPostPutRequestDTO,
+                                    Client client) {
+        appointment.setClient(client);
+        appointment.getServices().clear();
+        appointment.setServices(validateAndFetchServices(appointmentPostPutRequestDTO.servicesId()));
+        appointment.setDate(appointmentPostPutRequestDTO.date());
+        appointment.setStartTime(appointmentPostPutRequestDTO.startTime());
+        appointment.setEndTime(appointmentPostPutRequestDTO.endTime());
     }
 
 }
