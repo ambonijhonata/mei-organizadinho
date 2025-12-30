@@ -15,9 +15,4 @@ public record ReportRequestDTO(
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
         LocalDate endDate
 ) {
-    public ReportRequestDTO {
-        if (startDate != null && endDate != null && endDate.isBefore(startDate)) {
-            throw new BusinessException("endDate cannot be before startDate");
-        }
-    }
 }
