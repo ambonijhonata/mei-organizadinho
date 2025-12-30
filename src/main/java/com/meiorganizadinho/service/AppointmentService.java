@@ -9,6 +9,9 @@ import com.meiorganizadinho.entity.Client;
 import com.meiorganizadinho.entity.Services;
 import com.meiorganizadinho.exception.BusinessException;
 import com.meiorganizadinho.exception.NotFoundException;
+import com.meiorganizadinho.messages.AppointmentMessages;
+import com.meiorganizadinho.messages.ClientMessages;
+import com.meiorganizadinho.messages.ServicesMessages;
 import com.meiorganizadinho.repository.AppointmentRepository;
 import com.meiorganizadinho.repository.ClientRepository;
 import com.meiorganizadinho.repository.ServiceRepository;
@@ -130,37 +133,37 @@ public class AppointmentService {
 
     public void delete(Long id){
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Appointment not found"));
+                .orElseThrow(() -> new NotFoundException(AppointmentMessages.APPOINTMENT_NOT_FOUND));
         appointmentRepository.delete(appointment);
     }
 
     private Appointment findAppointmentById(Long id) {
         return appointmentRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Appointment not found"));
+                .orElseThrow(() -> new NotFoundException(AppointmentMessages.APPOINTMENT_NOT_FOUND));
     }
 
     private Client findClientById(Long clientId) {
         return clientRepository.findById(clientId)
-                .orElseThrow(() -> new NotFoundException("Client not found"));
+                .orElseThrow(() -> new NotFoundException(ClientMessages.CLIENT_NOT_FOUND));
     }
 
     private void validateAppointmentData(AppointmentPostPutRequestDTO appointmentPostPutRequestDTO) {
         if(!appointmentPostPutRequestDTO.startTime().isBefore(appointmentPostPutRequestDTO.endTime())){
-            throw new BusinessException("Start time cannot be after end time");
+            throw new BusinessException(AppointmentMessages.START_TIME_CANNOT_BE_AFTER_END_TIME);
         }
 
         if (appointmentPostPutRequestDTO.servicesId() == null || appointmentPostPutRequestDTO.servicesId().isEmpty()) {
-            throw new BusinessException("At least one service is required");
+            throw new BusinessException(AppointmentMessages.AT_LEAST_ONE_SERVICE_IS_REQUIRED);
         }
     }
 
     private void validateAppointmentConflict(AppointmentPostPutRequestDTO appointmentPostPutRequestDTO, Appointment appointment) {
         List<Appointment> conflicts = appointmentRepository.findConflictingAppointments(appointmentPostPutRequestDTO.date(), appointmentPostPutRequestDTO.startTime(), appointmentPostPutRequestDTO.endTime());
         if(!conflicts.isEmpty()) {
-            if(appointment != null && conflicts.get(0).getId() != appointment.getId()){
-                throw new BusinessException("Conflicting appointments in date " + appointmentPostPutRequestDTO.date() + " between " + appointmentPostPutRequestDTO.startTime() + " and " + appointmentPostPutRequestDTO.endTime() + " are found");
+            if(appointment != null && !conflicts.getFirst().getId().equals(appointment.getId())){
+                throw new BusinessException(AppointmentMessages.getConflictingAppointmentsMessage(appointmentPostPutRequestDTO.date(), appointmentPostPutRequestDTO.startTime(), appointmentPostPutRequestDTO.endTime()));
             } else if(appointment == null){
-                throw new BusinessException("Conflicting appointments in date " + appointmentPostPutRequestDTO.date() + " between " + appointmentPostPutRequestDTO.startTime() + " and " + appointmentPostPutRequestDTO.endTime() + " are found");
+                throw new BusinessException(AppointmentMessages.getConflictingAppointmentsMessage(appointmentPostPutRequestDTO.date(), appointmentPostPutRequestDTO.startTime(), appointmentPostPutRequestDTO.endTime()));
             }
         }
     }
@@ -169,7 +172,7 @@ public class AppointmentService {
         List<Services> servicesList = new ArrayList<>();
         for (Long serviceId: servicesId){
             Services services = serviceRepository.findById(serviceId)
-                    .orElseThrow(() -> new NotFoundException("Service " + serviceId + " not found"));
+                    .orElseThrow(() -> new NotFoundException(ServicesMessages.getServiceNotFoundMessage(serviceId)));
             servicesList.add(services);
         }
         return servicesList;

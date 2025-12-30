@@ -6,6 +6,7 @@ import com.meiorganizadinho.entity.Client;
 import com.meiorganizadinho.exception.BusinessException;
 import com.meiorganizadinho.exception.ConflictException;
 import com.meiorganizadinho.exception.NotFoundException;
+import com.meiorganizadinho.messages.ClientMessages;
 import com.meiorganizadinho.repository.ClientRepository;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +26,7 @@ public class ClientService {
 
         boolean isAlreadyClientExists = clientRepository.existsByNameIgnoreCase(clientName);
         if (isAlreadyClientExists) {
-            throw new ConflictException("Client with name " + clientPostPutRequestDTO.name() + " already exists");
+            throw new ConflictException(ClientMessages.getClientWithNameAlreadyExistsMessage(clientName));
         }
 
         Client client = new Client(clientPostPutRequestDTO.name());
@@ -57,10 +58,10 @@ public class ClientService {
 
     public ClientResponseDTO update(Long id, ClientPostPutRequestDTO clientRequest) {
         Client client = clientRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException((("Client not found"))));
+                .orElseThrow(() -> new NotFoundException(((ClientMessages.CLIENT_NOT_FOUND))));
 
         if(clientRequest.name().equalsIgnoreCase(client.getName()) || clientRepository.existsByNameIgnoreCase(clientRequest.name())) {
-            throw new ConflictException("Client with name " + clientRequest.name() + " already exists");
+            throw new ConflictException(ClientMessages.getClientWithNameAlreadyExistsMessage(clientRequest.name()));
         }
 
         client.setName(clientRequest.name());
@@ -72,11 +73,11 @@ public class ClientService {
 
     public void delete(Long id) {
         Client client = clientRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException((("Client not found"))));
+                .orElseThrow(() -> new NotFoundException(((ClientMessages.CLIENT_NOT_FOUND))));
 
         int qtdAppointments = client.getAppointments().size();
         if(qtdAppointments > 0) {
-            throw new BusinessException("Cliente has link with " + qtdAppointments + " appointment(s)");
+            throw new BusinessException(ClientMessages.getClientHasLinkWithNAppointmentsMessage(qtdAppointments));
         }
         clientRepository.delete(client);
     }
