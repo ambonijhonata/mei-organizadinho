@@ -3,7 +3,6 @@ package com.meiorganizadinho.controller;
 import com.meiorganizadinho.config.UserAuthenticationFilter;
 import com.meiorganizadinho.dto.clientdto.ClientPostPutRequestDTO;
 import com.meiorganizadinho.dto.clientdto.ClientResponseDTO;
-import com.meiorganizadinho.entity.Client;
 import com.meiorganizadinho.exception.BusinessException;
 import com.meiorganizadinho.exception.ConflictException;
 import com.meiorganizadinho.exception.NotFoundException;
