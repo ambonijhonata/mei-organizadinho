@@ -1,21 +1,17 @@
 package com.meiorganizadinho.controller;
 
-import com.meiorganizadinho.config.UserAuthenticationFilter;
 import com.meiorganizadinho.dto.clientdto.ClientPostPutRequestDTO;
 import com.meiorganizadinho.dto.clientdto.ClientResponseDTO;
 import com.meiorganizadinho.exception.BusinessException;
 import com.meiorganizadinho.exception.ConflictException;
 import com.meiorganizadinho.exception.NotFoundException;
 import com.meiorganizadinho.messages.ClientMessages;
-import com.meiorganizadinho.repository.UserRepository;
 import com.meiorganizadinho.service.ClientService;
-import com.meiorganizadinho.service.JwtTokenService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -40,7 +36,6 @@ public class ClientControllerTest {
     private ClientService clientService;
 
     @Test
-    @WithMockUser
     void postShouldReturn400WhenNameIsEmpty() throws Exception {
         String jsonRequest = """
                 {
@@ -57,7 +52,6 @@ public class ClientControllerTest {
     }
 
     @Test
-    @WithMockUser
     void postShouldReturn400WhenNameIsNull() throws Exception {
         String jsonRequest = """
                 {
@@ -74,7 +68,6 @@ public class ClientControllerTest {
     }
 
     @Test
-    @WithMockUser
     void postShouldReturn400WhenNameDoesNotExists() throws Exception {
         String jsonRequest = """
                 {
@@ -91,7 +84,6 @@ public class ClientControllerTest {
     }
 
     @Test
-    @WithMockUser
     void postShouldReturn409WhenClientAlreadyExists() throws Exception {
         String jsonRequest = """
                 {
@@ -111,7 +103,6 @@ public class ClientControllerTest {
     }
 
     @Test
-    @WithMockUser
     void postShouldCreateClient() throws Exception {
         String jsonRequest = """
                 {
@@ -135,7 +126,6 @@ public class ClientControllerTest {
     }
 
     @Test
-    @WithMockUser
     void getShouldReturnValues() throws Exception {
         List<ClientResponseDTO> mockResponse = Arrays.asList(
                 new ClientResponseDTO(1L, "Teste Unitario da Silva"),
@@ -154,7 +144,6 @@ public class ClientControllerTest {
     }
 
     @Test
-    @WithMockUser
     void getShouldReturnValuesWithFilter() throws Exception {
         List<ClientResponseDTO> mockResponse = Arrays.asList(
                 new ClientResponseDTO(1L, "Teste Unitario da Silva"),
@@ -173,7 +162,6 @@ public class ClientControllerTest {
     }
 
     @Test
-    @WithMockUser
     void putShouldReturn400WhenNameIsEmpty() throws Exception {
         String jsonRequest = """
                 {
@@ -190,7 +178,6 @@ public class ClientControllerTest {
     }
 
     @Test
-    @WithMockUser
     void putShouldReturn400WhenNameIsNull() throws Exception {
         String jsonRequest = """
                 {
@@ -207,7 +194,6 @@ public class ClientControllerTest {
     }
 
     @Test
-    @WithMockUser
     void putShouldReturn400WhenNameDoesNotExists() throws Exception {
         String jsonRequest = """
                 {
@@ -224,7 +210,6 @@ public class ClientControllerTest {
     }
 
     @Test
-    @WithMockUser
     void putShouldReturn404WhenClientNotFound() throws Exception {
         String jsonRequest = """
                 {
@@ -245,7 +230,6 @@ public class ClientControllerTest {
     }
 
     @Test
-    @WithMockUser
     void putShouldReturn409WhenClientAlreadyExists() throws Exception {
         String jsonRequest = """
                 {
@@ -266,7 +250,6 @@ public class ClientControllerTest {
     }
 
     @Test
-    @WithMockUser
     void putShouldUpdateClient() throws Exception {
         String jsonRequest = """
                 {
@@ -290,7 +273,6 @@ public class ClientControllerTest {
     }
 
     @Test
-    @WithMockUser
     void deleteShouldReturn404WhenClientNotFound() throws Exception{
         long clientNotFoundId = 1L;
 
@@ -305,7 +287,6 @@ public class ClientControllerTest {
     }
 
     @Test
-    @WithMockUser
     void deleteShouldReturn400WhenClientHasAppointments() throws Exception {
         long clientIdWithAppointments = 1L;
         int qtdAppointments = 2;

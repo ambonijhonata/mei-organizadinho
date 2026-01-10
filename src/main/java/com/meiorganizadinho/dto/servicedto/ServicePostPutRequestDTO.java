@@ -11,7 +11,7 @@ public record ServicePostPutRequestDTO(
         String name,
 
         @NotNull(message = "Value is required")
-        @Positive(message = "Value must be positive")
+        @Positive(message = "Value must be positive or greater than 0")
         Double value,
 
         @NotNull(message = "Duration is required")
