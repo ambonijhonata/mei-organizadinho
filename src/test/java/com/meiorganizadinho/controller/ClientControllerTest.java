@@ -39,15 +39,6 @@ public class ClientControllerTest {
     @MockitoBean
     private ClientService clientService;
 
-    @MockitoBean
-    private UserAuthenticationFilter userAuthenticationFilter;
-
-    @MockitoBean
-    private JwtTokenService jwtTokenService;
-
-    @MockitoBean
-    private UserRepository userRepository;
-
     @Test
     @WithMockUser
     void postShouldReturn400WhenNameIsEmpty() throws Exception {
