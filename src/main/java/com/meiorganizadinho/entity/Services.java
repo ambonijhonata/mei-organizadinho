@@ -32,6 +32,13 @@ public class Services {
         this.duration = duration;
     }
 
+    public Services(Long id, String name, double value, int duration) {
+        this.id = id;
+        this.name = name;
+        this.value = value;
+        this.duration = duration;
+    }
+
     public Long getId() {
         return id;
     }
