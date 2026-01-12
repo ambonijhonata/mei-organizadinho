@@ -2,7 +2,6 @@ package com.meiorganizadinho.controller;
 
 import com.meiorganizadinho.dto.appointmentdto.AppointmentPostPutRequestDTO;
 import com.meiorganizadinho.dto.appointmentdto.AppointmentResponseDTO;
-import com.meiorganizadinho.entity.Appointment;
 import com.meiorganizadinho.service.AppointmentService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

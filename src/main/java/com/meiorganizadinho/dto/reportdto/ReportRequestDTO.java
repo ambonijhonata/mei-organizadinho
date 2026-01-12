@@ -1,6 +1,5 @@
 package com.meiorganizadinho.dto.reportdto;
 
-import com.meiorganizadinho.exception.BusinessException;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.format.annotation.DateTimeFormat;
 
