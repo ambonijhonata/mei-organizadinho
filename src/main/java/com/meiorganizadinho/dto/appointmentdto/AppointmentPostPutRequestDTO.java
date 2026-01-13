@@ -8,7 +8,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 public record AppointmentPostPutRequestDTO(
-        @NotNull(message = "clientId os required")
+        @NotNull(message = "clientId is required")
         Long clientId,
         @NotNull(message = "servicesId is required")
         @Size(min = 1, message = "At least one service must be specified")

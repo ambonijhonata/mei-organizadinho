@@ -22,7 +22,7 @@ public class AppointmentController {
     }
 
     @PostMapping
-    public ResponseEntity<AppointmentResponseDTO> post(@RequestBody AppointmentPostPutRequestDTO appointment) {
+    public ResponseEntity<AppointmentResponseDTO> post(@RequestBody @Valid AppointmentPostPutRequestDTO appointment) {
         return ResponseEntity.status(HttpStatus.CREATED).body(appointmentService.create(appointment));
     }
 

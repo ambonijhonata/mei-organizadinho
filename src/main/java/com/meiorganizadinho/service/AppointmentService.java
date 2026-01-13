@@ -8,6 +8,7 @@ import com.meiorganizadinho.entity.Appointment;
 import com.meiorganizadinho.entity.Client;
 import com.meiorganizadinho.entity.Services;
 import com.meiorganizadinho.exception.BusinessException;
+import com.meiorganizadinho.exception.ConflictException;
 import com.meiorganizadinho.exception.NotFoundException;
 import com.meiorganizadinho.messages.AppointmentMessages;
 import com.meiorganizadinho.messages.ClientMessages;
@@ -161,9 +162,9 @@ public class AppointmentService {
         List<Appointment> conflicts = appointmentRepository.findConflictingAppointments(appointmentPostPutRequestDTO.date(), appointmentPostPutRequestDTO.startTime(), appointmentPostPutRequestDTO.endTime());
         if(!conflicts.isEmpty()) {
             if(appointment != null && !conflicts.getFirst().getId().equals(appointment.getId())){
-                throw new BusinessException(AppointmentMessages.getConflictingAppointmentsMessage(appointmentPostPutRequestDTO.date(), appointmentPostPutRequestDTO.startTime(), appointmentPostPutRequestDTO.endTime()));
+                throw new ConflictException(AppointmentMessages.getConflictingAppointmentsMessage(appointmentPostPutRequestDTO.date(), appointmentPostPutRequestDTO.startTime(), appointmentPostPutRequestDTO.endTime()));
             } else if(appointment == null){
-                throw new BusinessException(AppointmentMessages.getConflictingAppointmentsMessage(appointmentPostPutRequestDTO.date(), appointmentPostPutRequestDTO.startTime(), appointmentPostPutRequestDTO.endTime()));
+                throw new ConflictException(AppointmentMessages.getConflictingAppointmentsMessage(appointmentPostPutRequestDTO.date(), appointmentPostPutRequestDTO.startTime(), appointmentPostPutRequestDTO.endTime()));
             }
         }
     }
