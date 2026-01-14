@@ -1,6 +1,13 @@
 package com.meiorganizadinho.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.meiorganizadinho.dto.appointmentdto.AppointmentPostPutRequestDTO;
+import com.meiorganizadinho.dto.appointmentdto.AppointmentResponseDTO;
+import com.meiorganizadinho.dto.clientdto.ClientResponseDTO;
+import com.meiorganizadinho.dto.servicedto.ServiceResponseDTO;
+import com.meiorganizadinho.entity.Client;
 import com.meiorganizadinho.exception.BusinessException;
 import com.meiorganizadinho.exception.ConflictException;
 import com.meiorganizadinho.exception.NotFoundException;
@@ -23,6 +30,7 @@ import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -426,5 +434,91 @@ public class AppointmentControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("Not Found"))
                 .andExpect(jsonPath("$.details").value("Service 2 not found"));
+    }
+
+    @Test
+    void postShouldReturn201WhenAppointmentIsCreated() throws Exception {
+        AppointmentPostPutRequestDTO appointmentRequest = new AppointmentPostPutRequestDTO(2L, List.of(10L, 15L), LocalDate.of(2025, 12, 30), LocalTime.of(16, 0), LocalTime.of(16, 45));
+
+        List<ServiceResponseDTO> servicesMockResponse = List.of(
+                new ServiceResponseDTO(10L, "Corte de Cabelo", 50.0, 30),
+                new ServiceResponseDTO(15L, "Barba", 30.0, 15)
+        );
+        AppointmentResponseDTO mockResponse = new AppointmentResponseDTO(1L, new ClientResponseDTO(2L, "Teste de Souza"), servicesMockResponse, appointmentRequest.date(), appointmentRequest.startTime(), appointmentRequest.endTime());
+
+        when(appointmentService.create(any(AppointmentPostPutRequestDTO.class)))
+                .thenReturn(mockResponse);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        String jsonRequest = objectMapper.writeValueAsString(appointmentRequest);
+
+        mockMvc.perform(post("/api/v1/appointments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonRequest))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.client.id").value(2))
+                .andExpect(jsonPath("$.client.name").value("Teste de Souza"))
+                .andExpect(jsonPath("$.services[0].id").value(10))
+                .andExpect(jsonPath("$.services[0].name").value("Corte de Cabelo"))
+                .andExpect(jsonPath("$.services[0].value").value(50.0))
+                .andExpect(jsonPath("$.services[0].duration").value(30))
+                .andExpect(jsonPath("$.services[1].id").value(15))
+                .andExpect(jsonPath("$.services[1].name").value("Barba"))
+                .andExpect(jsonPath("$.services[1].value").value(30.0))
+                .andExpect(jsonPath("$.services[1].duration").value(15))
+                .andExpect(jsonPath("$.date").value("2025-12-30"))
+                .andExpect(jsonPath("$.startTime").value("16:00:00"))
+                .andExpect(jsonPath("$.endTime").value("16:45:00"));
+    }
+
+    @Test
+    void getShouldReturnValuesWithFilterByDateAndStartTimeGreaterThan() throws Exception{
+        ClientResponseDTO clientResponseDTO = new ClientResponseDTO(1L, "Cliente Teste");
+        List<ServiceResponseDTO> servicesMockResponse = List.of(
+                new ServiceResponseDTO(2L, "Corte de Cabelo", 50.0, 30),
+                new ServiceResponseDTO(3L, "Barba", 30.0, 15)
+        );
+
+        List<AppointmentResponseDTO> appointmentsMockResponse = List.of(
+                new AppointmentResponseDTO(1L, clientResponseDTO, servicesMockResponse, LocalDate.of(2025, 12, 30), LocalTime.of(15, 0), LocalTime.of(15, 45)),
+                new AppointmentResponseDTO(2L, clientResponseDTO, servicesMockResponse, LocalDate.of(2025, 12, 30), LocalTime.of(16, 0), LocalTime.of(16, 45))
+        );
+
+        when(appointmentService.getByDateAndStartTimeGreaterThan(LocalDate.of(2025,12,30), LocalTime.of(15,0)))
+                .thenReturn(appointmentsMockResponse);
+
+        mockMvc.perform(get("/api/v1/appointments?date=2025-12-30&startTime=15:00:00"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].client.id").value(1))
+                .andExpect(jsonPath("$[0].client.name").value("Cliente Teste"))
+                .andExpect(jsonPath("$[0].services[0].id").value(2))
+                .andExpect(jsonPath("$[0].services[0].name").value("Corte de Cabelo"))
+                .andExpect(jsonPath("$[0].services[0].value").value(50.0))
+                .andExpect(jsonPath("$[0].services[0].duration").value(30))
+                .andExpect(jsonPath("$[0].services[1].id").value(3))
+                .andExpect(jsonPath("$[0].services[1].name").value("Barba"))
+                .andExpect(jsonPath("$[0].services[1].value").value(30.0))
+                .andExpect(jsonPath("$[0].services[1].duration").value(15))
+                .andExpect(jsonPath("$[0].date").value("2025-12-30"))
+                .andExpect(jsonPath("$[0].startTime").value("15:00:00"))
+                .andExpect(jsonPath("$[0].endTime").value("15:45:00"))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].client.id").value(1))
+                .andExpect(jsonPath("$[1].client.name").value("Cliente Teste"))
+                .andExpect(jsonPath("$[1].services[0].id").value(2))
+                .andExpect(jsonPath("$[1].services[0].name").value("Corte de Cabelo"))
+                .andExpect(jsonPath("$[1].services[0].value").value(50.0))
+                .andExpect(jsonPath("$[1].services[0].duration").value(30))
+                .andExpect(jsonPath("$[1].services[1].id").value(3))
+                .andExpect(jsonPath("$[1].services[1].name").value("Barba"))
+                .andExpect(jsonPath("$[1].services[1].value").value(30.0))
+                .andExpect(jsonPath("$[1].services[1].duration").value(15))
+                .andExpect(jsonPath("$[1].date").value("2025-12-30"))
+                .andExpect(jsonPath("$[1].startTime").value("16:00:00"))
+                .andExpect(jsonPath("$[1].endTime").value("16:45:00"));
     }
 }
