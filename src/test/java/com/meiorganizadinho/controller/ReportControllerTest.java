@@ -1,6 +1,8 @@
 package com.meiorganizadinho.controller;
 
 import com.meiorganizadinho.dto.reportdto.CashFlowStatmentReportResponseDTO;
+import com.meiorganizadinho.dto.reportdto.RevenueReportResponseDTO;
+import com.meiorganizadinho.entity.CashFlowStatement;
 import com.meiorganizadinho.exception.BusinessException;
 import com.meiorganizadinho.messages.ReportMessages;
 import com.meiorganizadinho.service.ReportService;
@@ -13,6 +15,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -175,7 +178,7 @@ public class ReportControllerTest {
 
     @Test
     void postRevenueReportShouldReturnRevenueReport() throws Exception {
-        CashFlowStatmentReportResponseDTO mockResponse = new CashFlowStatmentReportResponseDTO();
+        RevenueReportResponseDTO mockResponse = new RevenueReportResponseDTO(18761.87);
 
         String jsonRequest = """
                 {
@@ -185,14 +188,13 @@ public class ReportControllerTest {
                 """;
 
         when(reportService.revenueReport(LocalDate.of(2025, 11, 19), LocalDate.of(2025, 11, 19)))
-                .thenThrow(new BusinessException(ReportMessages.ENDDATE_CANNOT_BE_BEFORE_STARTDATE));
+                .thenReturn(mockResponse);
 
         mockMvc.perform(post("/api/v1/reports/revenue-report")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequest))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("Bad Request"))
-                .andExpect(jsonPath("$.details").value("endDate cannot be before startDate"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.value").value(18761.87));
     }
 
 }
