@@ -58,9 +58,10 @@ public class ClientService {
 
     public ClientResponseDTO update(Long id, ClientPostPutRequestDTO clientRequest) {
         Client client = clientRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(((ClientMessages.CLIENT_NOT_FOUND))));
+                .orElseThrow(() -> new NotFoundException(ClientMessages.CLIENT_NOT_FOUND));
 
-        if(clientRequest.name().equalsIgnoreCase(client.getName()) || clientRepository.existsByNameIgnoreCase(clientRequest.name())) {
+        boolean alreadyExistsAnotherClientWithName = clientRepository.existsByNameIgnoreCase(clientRequest.name());
+        if(clientRequest.name().equalsIgnoreCase(client.getName()) || alreadyExistsAnotherClientWithName) {
             throw new ConflictException(ClientMessages.getClientWithNameAlreadyExistsMessage(clientRequest.name()));
         }
 

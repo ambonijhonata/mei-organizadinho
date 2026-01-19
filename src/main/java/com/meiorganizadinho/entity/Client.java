@@ -18,6 +18,10 @@ public class Client {
     @OneToMany(mappedBy = "client")
     private List<Appointment> appointments = new ArrayList<>();
 
+    public Client(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
     public Client(String name) {
         this.name = name;
     }

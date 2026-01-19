@@ -31,6 +31,17 @@ public class Appointment {
     private LocalTime startTime;
     private LocalTime endTime;
 
+    public Appointment(){}
+
+    public Appointment(Long id, Client client, List<Services> services, LocalDate date, LocalTime startTime, LocalTime endTime) {
+        this.id = id;
+        this.client = client;
+        this.services = services;
+        this.date = date;
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
+
     public Long getId() {
         return id;
     }
