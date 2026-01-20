@@ -61,7 +61,7 @@ public class ServicesService {
                 orElseThrow(() -> new NotFoundException(ServicesMessages.getServiceNotFoundMessage(id)));
 
         if(servicePostPutRequestDTO.name().equalsIgnoreCase(services.getName())
-        || serviceRepository.existsByNameIgnoreCase(services.getName())) {
+        || serviceRepository.existsByNameIgnoreCase(servicePostPutRequestDTO.name())) {
             throw new ConflictException(ServicesMessages.getServiceAlreadyExistsMessage(servicePostPutRequestDTO.name()));
         }
 
