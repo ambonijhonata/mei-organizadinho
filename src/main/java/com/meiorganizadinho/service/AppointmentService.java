@@ -152,10 +152,6 @@ public class AppointmentService {
         if(!appointmentPostPutRequestDTO.startTime().isBefore(appointmentPostPutRequestDTO.endTime())){
             throw new BusinessException(AppointmentMessages.START_TIME_CANNOT_BE_AFTER_END_TIME);
         }
-
-        if (appointmentPostPutRequestDTO.servicesId() == null || appointmentPostPutRequestDTO.servicesId().isEmpty()) {
-            throw new BusinessException(AppointmentMessages.AT_LEAST_ONE_SERVICE_IS_REQUIRED);
-        }
     }
 
     private void validateAppointmentConflict(AppointmentPostPutRequestDTO appointmentPostPutRequestDTO, Appointment appointment) {
