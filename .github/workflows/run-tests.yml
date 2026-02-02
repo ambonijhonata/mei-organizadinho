@@ -1,0 +1,31 @@
+name: Run Unit Tests
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - '**/*.java'
+      - 'pom.xml'
+      - 'build.gradle'
+      - 'gradle.properties'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout codigo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configurar JDK
+        uses: actions/setup-java@v4
+        with:
+            distribution: 'temurin'
+            java-version: '21'
+
+      - name: Rodar testes com Maven
+        if: ${{ hashFiles('pom.xml') != '' }}
+        run: mvn test
+        continue-on-error: true
