@@ -35,5 +35,5 @@ jobs:
 
       - name: Rodar testes com Maven
         if: ${{ hashFiles('pom.xml') != '' }}
-        run: mvn test
+        run: mvn test -Dspring.profiles.active=test
         continue-on-error: false
