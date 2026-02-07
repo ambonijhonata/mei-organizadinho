@@ -46,5 +46,5 @@ public class AppointmentController {
         appointmentService.delete(id);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    } //
+    }
 }
