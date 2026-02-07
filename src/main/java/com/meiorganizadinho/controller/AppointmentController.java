@@ -45,7 +45,6 @@ public class AppointmentController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         appointmentService.delete(id);
 
-        //return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    } //
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }
