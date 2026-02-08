@@ -42,12 +42,3 @@ jobs:
         if: ${{ hashFiles('pom.xml') != '' }}
         run: mvn test -Dspring.profiles.active=test
         continue-on-error: false
-
-      - name: Report test status
-        if: always()
-        run: |
-          if [ "${{ job.status }}" = "success" ]; then
-            echo "Tests passed!"
-          else
-            echo "Tests failed!"
-            exit 1
